@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -16,9 +17,9 @@ import (
 	"onlinecourse/internal/handlers"
 )
 
-// Public Key ในรูปแบบ PEM (คัดลอกจาก Keycloak)
+// Public Key ในรูปแบบ PEM (คัดลอกจาก Keycloak) ----> รอเปลี่ยนเป็น .env แทน
 var publicKeyPEM = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuAGJz5wltT591SzVfYoEzIWNALD9T1NT1qm7geEzN89AljL8yZv/kDYLqrZ15x86ZooC7qdp86GBmh27v+oLRNdvM96vxXM5Jg58IucbmsWu2G1DdRYL0tkaF/GMm8bXzBzneHKYHZf2eGldLDkJRgCHcxh/CWOdodSsET/y+4J0iF7HSXD9s3RROwGdWUzx+t3BrIGusTsW1VNC0e2VstQTovb/JN5+cU2X4bLp6EE/UVvu4ErSYpydlvUxML0JVEMoHMgLY/DO5PlU+ur+FjhvhftjqRPxnsEU2AYImMeZdBunVUyGDZZRcZCIWKFWF49B5freS0v6/kEjl+1eEwIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvDi7UB9tY8lSbCMGZ3DuHDucEhar6P9Yt4KaHaC/d7rocrTWteM/i+0mpbaw5FgaIRztrgJ+llDuUhfdAPtea+pPtlQhYrSyZzSjN2okXiVwcXkFgQA2ks1ZMO98aUih6j7GOTuwy28OaP8Z6x3ZG+HBK9E4ZBENK3W64O2/XvdYOcz+nXoaifGdC5T4PlCB/ZM5irKyZafnd5p1DpAG6uBIxe/88WrxwGAmDwuwoNwE8qKwQ0OhU1It1UBsHYSbhKoAGBGNPR+N4TMn8R+PVAu5oDN+2f8Hif+IA1ker2RmO5gDbiWT6Jk6EtrqjAwExmpmnE41ELaM9N0g0bTD8wIDAQAB
 -----END PUBLIC KEY-----`
 
 // Global variable สำหรับเก็บ *rsa.PublicKey ที่แปลงแล้ว
@@ -70,16 +71,25 @@ func main() {
 	{
 		protected.GET("/data", handlers.RequestLogMiddleware(), handlers.GetData)
 
+		//เอาไว้ดึงข้อมูล user
+		protected.GET("/userdata", func(c *gin.Context) {
+			username := c.GetString("username")
+			roles := c.GetStringSlice("roles")
+			c.JSON(200, gin.H{
+				"username": username,
+				"roles":    roles,
+			})
+		})
 	}
 
 	r.Run(":8081")
 }
 
-// Middleware สำหรับตรวจสอบ JWT และสิทธิ์ด้วย Casbin
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			log.Println("Ur right!")
 			c.JSON(401, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
@@ -115,7 +125,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// ตรวจสอบผู้ออกโทเค็น
-		if !claims.VerifyIssuer("http://localhost:8082/realms/auth101", true) {
+		if !claims.VerifyIssuer("http://localhost:8080/realms/auth101", true) {
 			c.JSON(401, gin.H{"error": "Invalid token issuer"})
 			c.Abort()
 			return

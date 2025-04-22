@@ -20,8 +20,8 @@ func LoadConfig() Config {
 		POSTGRESDB:             getEnv("POSTGRES_DB", "webservice"),
 		POSTGRESUSER:           getEnv("POSTGRES_USER", "webservice_user"),
 		POSTGRESPASSWORD:       getEnv("POSTGRES_PASSWORD", "your_strong_password"),
-		POSTGRESPORT:           getEnv("POSTGRES_PORT", "5432"),
-		PGADMINDEFAULTEMAIL:    getEnv("PGADMIN_DEFAULT_EMAIL", "nuttachot@hotmail.com"),
+		POSTGRESPORT:           getEnv("POSTGRES_PORT", "5435"),
+		PGADMINDEFAULTEMAIL:    getEnv("PGADMIN_DEFAULT_EMAIL", "admin@admin.com"),
 		PGADMINDEFAULTPASSWORD: getEnv("PGADMIN_DEFAULT_PASSWORD", "password"),
 		PGADMINPORT:            getEnv("PGADMIN_PORT", "5050"),
 	}
