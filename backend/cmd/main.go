@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -85,11 +84,14 @@ func main() {
 	r.Run(":8081")
 }
 
+// Middleware สำหรับตรวจสอบ JWT และสิทธิ์ด้วย Casbin
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
+		// debug
+		fmt.Println("🔑 Token Header : ", authHeader)
+
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			log.Println("Ur right!")
 			c.JSON(401, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
@@ -125,7 +127,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// ตรวจสอบผู้ออกโทเค็น
-		if !claims.VerifyIssuer("http://localhost:8080/realms/auth101", true) {
+		if !claims.VerifyIssuer("http://localhost:8082/realms/auth101", true) {
 			c.JSON(401, gin.H{"error": "Invalid token issuer"})
 			c.Abort()
 			return

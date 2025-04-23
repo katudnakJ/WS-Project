@@ -2,8 +2,6 @@ package handlers
 
 // pass รอแก้เป็น hash แล้วเก็บไว้
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"log"
 	"net/http"
 	"onlinecourse/internal/models"
@@ -12,12 +10,13 @@ import (
 )
 
 // Gen APIKey
-func generateAPIKey() string {
-	bytes := make([]byte, 16)
-	rand.Read(bytes)
-	return hex.EncodeToString(bytes)
-}
+// func generateAPIKey() string {
+// 	bytes := make([]byte, 16)
+// 	rand.Read(bytes)
+// 	return hex.EncodeToString(bytes)
+// }
 
+// รอแก้
 func Register(c *gin.Context) {
 	var aff models.Affiliates
 	if err := c.ShouldBindJSON(&aff); err != nil {
@@ -37,7 +36,7 @@ func Register(c *gin.Context) {
 	// }
 	// c.JSON(http.StatusOK, gin.H{"message": "You are registered, Thanks to join Us!", "api_key": aff.Affiliate_APIKey})
 
-	// Test without DB
-	Affiliate_APIKey := generateAPIKey()
-	c.JSON(http.StatusOK, gin.H{"message": "You are registered, Thanks to join Us!", "api_key": Affiliate_APIKey})
+	// // Test without DB
+	// Affiliate_APIKey := generateAPIKey()
+	// c.JSON(http.StatusOK, gin.H{"message": "You are registered, Thanks to join Us!", "api_key": Affiliate_APIKey})
 }
